@@ -8,9 +8,9 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
 cities = {
-    'москва': ['213044/cf0852c67acc571950d7', '1652229/bfc3768d9f320fb7577f'],
-    'нью-йорк': ['1652229/5cca3268f24457221536', '937455/53f4bbc22ef006a181aa'],
-    'париж': ["1656841/87a1a3139860451c92a6", '937455/8ddabc5a8e53b6deac11']
+    'москва': [['россия'], ['213044/cf0852c67acc571950d7', '1652229/bfc3768d9f320fb7577f']],
+    'нью-йорк': [['сша', 'соединённые штаты америки'], ['1652229/5cca3268f24457221536', '937455/53f4bbc22ef006a181aa']],
+    'париж': ['франция', ["1656841/87a1a3139860451c92a6", '937455/8ddabc5a8e53b6deac11']]
 }
 
 sessionStorage = {}
@@ -122,6 +122,7 @@ def play_game(res, req):
             city = random.choice(list(cities))
         # записываем город в информацию о пользователе
         sessionStorage[user_id]['city'] = city
+        sessionStorage[user_id]['is_city'] = True
         # добавляем в ответ картинку
         res['response']['card'] = {}
         res['response']['card']['type'] = 'BigImage'
@@ -129,24 +130,64 @@ def play_game(res, req):
         res['response']['card']['image_id'] = cities[city][attempt - 1]
         res['response']['text'] = 'Тогда сыграем!'
     else:
-        # сюда попадаем, если попытка отгадать не первая
         city = sessionStorage[user_id]['city']
-        # проверяем есть ли правильный ответ в сообщение
+        if not sessionStorage[user_id]['is_city']:
+            if any(req['request']['command'].lower() in x for x in cities[city][0]):
+                res['response']['text'] = 'Правильно! А в какой стране этот город?'
+                sessionStorage[user_id]['guessed_cities'].append(city)
+                sessionStorage[user_id]['game_started'] = False
+                res['response']['buttons'] = [
+                    {
+                        'title': 'Да',
+                        'hide': True
+                    },
+                    {
+                        'title': 'Нет',
+                        'hide': True
+                    },
+                    {
+                        "hide": True,
+                        "title": "Помощь"
+                    },
+                    {
+                        "hide": True,
+                        "title": "Покажи город на карте",
+                        "url": f'https://yandex.ru/maps/?mode=search&text={city}'
+                    }
+                ]
+                return
+            else:
+                res['response']['text'] = f'Вы пытались. Это {cities[city][0][0]}. Сыграем ещё?'
+                sessionStorage[user_id]['game_started'] = False
+                sessionStorage[user_id]['guessed_cities'].append(city)
+                res['response']['buttons'] = [
+                    {
+                        'title': 'Да',
+                        'hide': True
+                    },
+                    {
+                        'title': 'Нет',
+                        'hide': True
+                    },
+                    {
+                        "hide": True,
+                        "title": "Помощь"
+                    },
+                    {
+                        "hide": True,
+                        "title": "Покажи город на карте",
+                        "url": f'https://yandex.ru/maps/?mode=search&text={city.title()}'
+                    }
+                ]
+                return
+
         if get_city(req) == city:
-            # если да, то добавляем город к sessionStorage[user_id]['guessed_cities'] и
-            # отправляем пользователя на второй круг. Обратите внимание на этот шаг на схеме.
-            res['response']['text'] = 'Правильно! Сыграем ещё?'
-            sessionStorage[user_id]['guessed_cities'].append(city)
-            sessionStorage[user_id]['game_started'] = False
+            # если отгодали
+            res['response']['text'] = 'Правильно! А в какой стране этот город?'
+            sessionStorage[user_id]['is_city'] = False
+            # sessionStorage[user_id]['guessed_cities'].append(city)
+            # sessionStorage[user_id]['game_started'] = False
             res['response']['buttons'] = [
-                {
-                    'title': 'Да',
-                    'hide': True
-                },
-                {
-                    'title': 'Нет',
-                    'hide': True
-                },
                 {
                     "hide": True,
                     "title": "Помощь"
