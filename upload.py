@@ -133,7 +133,7 @@ def play_game(res, req):
         city = sessionStorage[user_id]['city']
         if not sessionStorage[user_id]['is_city']:
             if any(req['request']['command'].lower() in x for x in cities[city][0]):
-                res['response']['text'] = 'Правильно! А в какой стране этот город?'
+                res['response']['text'] = 'Правильно! Сыграем ещё?'
                 sessionStorage[user_id]['guessed_cities'].append(city)
                 sessionStorage[user_id]['game_started'] = False
                 res['response']['buttons'] = [
