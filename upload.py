@@ -137,7 +137,7 @@ def play_game(res, req):
             except KeyError:
                 country = None
 
-            if country == cities[city][0]:
+            if country.lower() == cities[city][0].lower():
                 res['response']['text'] = 'Правильно! Сыграем ещё?'
                 sessionStorage[user_id]['guessed_cities'].append(city)
                 sessionStorage[user_id]['game_started'] = False
@@ -162,7 +162,7 @@ def play_game(res, req):
                 ]
                 return
             else:
-                res['response']['text'] = f'Вы пытались. Это {cities[city][0][0]}. Сыграем ещё?'
+                res['response']['text'] = f'Вы пытались. Это {cities[city][0]}. Сыграем ещё?'
                 sessionStorage[user_id]['game_started'] = False
                 sessionStorage[user_id]['guessed_cities'].append(city)
                 res['response']['buttons'] = [
