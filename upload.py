@@ -133,9 +133,10 @@ def play_game(res, req):
         city = sessionStorage[user_id]['city']
         if not sessionStorage[user_id]['is_city']:
             try:
-                country = req['request']['nlu']['entities']['value']['country']
+                country = req['request']['nlu']['entities'][0]['value']['country']
             except KeyError:
                 country = None
+
             if country == cities[city][0]:
                 res['response']['text'] = 'Правильно! Сыграем ещё?'
                 sessionStorage[user_id]['guessed_cities'].append(city)
