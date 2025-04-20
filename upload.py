@@ -22,7 +22,13 @@ def main():
         'session': request.json['session'],
         'version': request.json['version'],
         'response': {
-            'end_session': False
+            'end_session': False,
+            "buttons": [
+                {
+                    "hide": True,
+                    "title": "Помощь"
+                }
+            ]
         }
     }
     handle_dialog(response, request.json)
@@ -38,6 +44,11 @@ def handle_dialog(res, req):
             'first_name': None,
             'game_started': False
         }
+        return
+
+    if 'помощь' in req['request']['nlu']['tokens']:
+        res['response'][
+            'text'] = 'Это простая игра, где тебе нужно угадывать города.\nВ момент игры у тебя будет две попытки угадать город, но не бойся тебе хватит и одной попытки ведь игра совсем не сложная'
         return
 
     if sessionStorage[user_id]['first_name'] is None:
@@ -58,6 +69,10 @@ def handle_dialog(res, req):
                 },
                 {
                     'title': 'Нет',
+                    'hide': True
+                },
+                {
+                    'title': 'Помощь',
                     'hide': True
                 }
             ]
@@ -85,6 +100,10 @@ def handle_dialog(res, req):
                     {
                         'title': 'Нет',
                         'hide': True
+                    },
+                    {
+                        "hide": True,
+                        "title": "Помощь"
                     }
                 ]
         else:
