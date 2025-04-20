@@ -66,7 +66,7 @@ def handle_dialog(res, req):
             if 'да' in req['request']['nlu']['tokens']:
                 if len(sessionStorage[user_id]['guessed_cities']) == 3:
                     res['response']['text'] = 'Ты отгадал все города!'
-                    res['end_session'] = True
+                    res['response']['end_session'] = True
                 else:
                     sessionStorage[user_id]['game_started'] = True
                     sessionStorage[user_id]['attempt'] = 1
