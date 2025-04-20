@@ -134,10 +134,10 @@ def play_game(res, req):
         if not sessionStorage[user_id]['is_city']:
             try:
                 country = req['request']['nlu']['entities'][0]['value']['country']
-            except KeyError:
+            except Exception:
                 country = None
 
-            if country.lower() == cities[city][0].lower():
+            if not country is None and country.lower() == cities[city][0].lower():
                 res['response']['text'] = 'Правильно! Сыграем ещё?'
                 sessionStorage[user_id]['guessed_cities'].append(city)
                 sessionStorage[user_id]['game_started'] = False
