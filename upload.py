@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import logging
 import random
+import requests
 
 app = Flask(__name__)
 
@@ -8,8 +9,8 @@ logging.basicConfig(level=logging.INFO)
 
 cities = {
     'москва': ['213044/cf0852c67acc571950d7', '1652229/bfc3768d9f320fb7577f'],
-    'нью-йорк': ['1656841/87a1a3139860451c92a6', '937455/8ddabc5a8e53b6deac11'],
-    'париж': ["1652229/5cca3268f24457221536", '937455/53f4bbc22ef006a181aa']
+    'нью-йорк': ['1652229/5cca3268f24457221536', '937455/53f4bbc22ef006a181aa'],
+    'париж': ["1656841/87a1a3139860451c92a6", '937455/8ddabc5a8e53b6deac11']
 }
 
 sessionStorage = {}
@@ -89,7 +90,7 @@ def handle_dialog(res, req):
                     play_game(res, req)
             elif 'нет' in req['request']['nlu']['tokens']:
                 res['response']['text'] = 'Ну и ладно!'
-                res['end_session'] = True
+                res['response']['end_session'] = True
             else:
                 res['response']['text'] = 'Не поняла ответа! Так да или нет?'
                 res['response']['buttons'] = [
@@ -137,6 +138,25 @@ def play_game(res, req):
             res['response']['text'] = 'Правильно! Сыграем ещё?'
             sessionStorage[user_id]['guessed_cities'].append(city)
             sessionStorage[user_id]['game_started'] = False
+            res['response']['buttons'] = [
+                {
+                    'title': 'Да',
+                    'hide': True
+                },
+                {
+                    'title': 'Нет',
+                    'hide': True
+                },
+                {
+                    "hide": True,
+                    "title": "Помощь"
+                },
+                {
+                    "hide": True,
+                    "title": "Покажи город на карте",
+                    "url": f'https://yandex.ru/maps/?mode=search&text={city}'
+                }
+            ]
             return
         else:
             # если нет
@@ -148,6 +168,25 @@ def play_game(res, req):
                 res['response']['text'] = f'Вы пытались. Это {city.title()}. Сыграем ещё?'
                 sessionStorage[user_id]['game_started'] = False
                 sessionStorage[user_id]['guessed_cities'].append(city)
+                res['response']['buttons'] = [
+                    {
+                        'title': 'Да',
+                        'hide': True
+                    },
+                    {
+                        'title': 'Нет',
+                        'hide': True
+                    },
+                    {
+                        "hide": True,
+                        "title": "Помощь"
+                    },
+                    {
+                        "hide": True,
+                        "title": "Покажи город на карте",
+                        "url": f'https://yandex.ru/maps/?mode=search&text={city.title()}'
+                    }
+                ]
                 return
             else:
                 # иначе показываем следующую картинку
@@ -170,6 +209,54 @@ def get_first_name(req):
     for entity in req['request']['nlu']['entities']:
         if entity['type'] == 'YANDEX.FIO':
             return entity['value'].get('first_name', None)
+
+
+def get_geo_info(city_name, type_info):
+    if type_info == 'coordinates':
+        try:
+            # url, по которому доступно API Яндекс.Карт
+            url = "https://geocode-maps.yandex.ru/1.x/"
+            # параметры запроса
+            params = {
+                "apikey": "8013b162-6b42-4997-9691-77b7074026e0",
+                # город, координаты которого мы ищем
+                'geocode': city_name,
+                # формат ответа от сервера, в данном случае JSON
+                'format': 'json'
+            }
+            # отправляем запрос
+            response = requests.get(url, params)
+            # получаем JSON ответа
+            json = response.json()
+            # получаем координаты города
+            # (там написаны долгота(longitude), широта(latitude) через пробел)
+            # посмотреть подробное описание JSON-ответа можно
+            # в документации по адресу https://tech.yandex.ru/maps/geocoder/
+            coordinates_str = json['response']['GeoObjectCollection'][
+                'featureMember'][0]['GeoObject']['Point']['pos']
+            # Превращаем string в список, так как
+            # точка - это пара двух чисел - координат
+            long, lat = map(float, coordinates_str.split())
+            # Вернем ответ
+            return long, lat
+        except Exception as e:
+            return e
+
+    elif type_info == 'country':
+        try:
+            url = "https://geocode-maps.yandex.ru/1.x/"
+            params = {
+                "apikey": "8013b162-6b42-4997-9691-77b7074026e0",
+                'geocode': city_name,
+                'format': 'json'
+            }
+            data = requests.get(url, params).json()
+            # все отличие тут, мы получаем имя страны
+            return data['response']['GeoObjectCollection'][
+                'featureMember'][0]['GeoObject']['metaDataProperty'][
+                'GeocoderMetaData']['AddressDetails']['Country']['CountryName']
+        except Exception as e:
+            return e
 
 
 if __name__ == '__main__':
