@@ -127,7 +127,7 @@ def play_game(res, req):
         res['response']['card'] = {}
         res['response']['card']['type'] = 'BigImage'
         res['response']['card']['title'] = 'Что это за город?'
-        res['response']['card']['image_id'] = cities[city][attempt - 1]
+        res['response']['card']['image_id'] = cities[city][1][attempt - 1]
         res['response']['text'] = 'Тогда сыграем!'
     else:
         city = sessionStorage[user_id]['city']
@@ -234,7 +234,7 @@ def play_game(res, req):
                 res['response']['card'] = {}
                 res['response']['card']['type'] = 'BigImage'
                 res['response']['card']['title'] = 'Неправильно. Вот тебе дополнительное фото'
-                res['response']['card']['image_id'] = cities[city][attempt - 1]
+                res['response']['card']['image_id'] = cities[city][1][attempt - 1]
                 res['response']['text'] = 'А вот и не угадал!'
     # увеличиваем номер попытки доля следующего шага
     sessionStorage[user_id]['attempt'] += 1
