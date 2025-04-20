@@ -184,7 +184,7 @@ def play_game(res, req):
 
         if get_city(req) == city:
             # если отгодали
-            res['response']['text'] = sessionStorage[user_id]['first_name'] + ', правильно! А в какой стране этот город?'
+            res['response']['text'] = f'Правильно {sessionStorage[user_id]["first_name"]}! А в какой стране этот город?'
             sessionStorage[user_id]['is_city'] = False
             res['response']['buttons'] = [
                 {
@@ -228,7 +228,7 @@ def play_game(res, req):
                 # иначе показываем следующую картинку
                 res['response']['card'] = {}
                 res['response']['card']['type'] = 'BigImage'
-                res['response']['card']['title'] = f'Неправильно {sessionStorage[user_id]['first_name']}. Вот тебе дополнительное фото'
+                res['response']['card']['title'] = f'Неправильно {sessionStorage[user_id]["first_name"]}. Вот тебе дополнительное фото'
                 res['response']['card']['image_id'] = cities[city][1][attempt - 1]
                 res['response']['text'] = 'А вот и не угадал!'
     # увеличиваем номер попытки доля следующего шага
