@@ -8,9 +8,9 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
 cities = {
-    'москва': [['россия'], ['213044/cf0852c67acc571950d7', '1652229/bfc3768d9f320fb7577f']],
-    'нью-йорк': [['сша', 'соединённые штаты америки'], ['1652229/5cca3268f24457221536', '937455/53f4bbc22ef006a181aa']],
-    'париж': [['франция'], ["1656841/87a1a3139860451c92a6", '937455/8ddabc5a8e53b6deac11']]
+    'москва': ['Россия', ['213044/cf0852c67acc571950d7', '1652229/bfc3768d9f320fb7577f']],
+    'нью-йорк': ['США', ['1652229/5cca3268f24457221536', '937455/53f4bbc22ef006a181aa']],
+    'париж': ['Франция', ["1656841/87a1a3139860451c92a6", '937455/8ddabc5a8e53b6deac11']]
 }
 
 sessionStorage = {}
@@ -132,7 +132,11 @@ def play_game(res, req):
     else:
         city = sessionStorage[user_id]['city']
         if not sessionStorage[user_id]['is_city']:
-            if any(req['request']['command'].lower() in x for x in cities[city][0]):
+            try:
+                country = req['request']['nlu']['entities']['value']['country']
+            except KeyError:
+                country = None
+            if country == cities[city][0]:
                 res['response']['text'] = 'Правильно! Сыграем ещё?'
                 sessionStorage[user_id]['guessed_cities'].append(city)
                 sessionStorage[user_id]['game_started'] = False
@@ -301,4 +305,6 @@ def get_geo_info(city_name, type_info):
 
 
 if __name__ == '__main__':
+    print(any('соединённые штаты америки' in x.lower() for x in cities['нью-йорк'][0]))
+    print(cities['нью-йорк'][0])
     app.run()
