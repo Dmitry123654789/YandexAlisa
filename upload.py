@@ -305,6 +305,4 @@ def get_geo_info(city_name, type_info):
 
 
 if __name__ == '__main__':
-    print(any('соединённые штаты америки' in x.lower() for x in cities['нью-йорк'][0]))
-    print(cities['нью-йорк'][0])
     app.run()
