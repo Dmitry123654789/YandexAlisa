@@ -1,13 +1,9 @@
 blinker
-certifi
-charset-normalizer
 click
 colorama
 Flask
-idna
 itsdangerous
 Jinja2
 MarkupSafe
-requests
-urllib3==1.26.7
+mtranslate
 Werkzeug
