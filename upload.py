@@ -62,7 +62,7 @@ def handle_dialog(res, req):
             {
                 "hide": True,
                 "title": "Покажи город на карте",
-                "url": f'https://yandex.ru/maps/?mode=search&text={sessionStorage[user_id]['city']}'
+                "url": f'https://yandex.ru/maps/?mode=search&text={sessionStorage[user_id]["city"]}'
             }
         ]
         res['response']['text'] = 'Хорошо, а теперь ответь пожалуйста на предыдущий вопрос'
